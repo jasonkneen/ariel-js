@@ -1,0 +1,20 @@
+{
+  "name": "ariel-js-project",
+  "version": "1.0.0",
+  "description": "ArielJS: A chainable JavaScript SDK for Mermaid flowcharts",
+  "main": "src/ariel-js.js",
+  "scripts": {
+    "test": "node tests/test.js",
+    "start": "echo 'Open public/index.html in a browser for the demo'"
+  },
+  "dependencies": {
+    "mermaid": "^10.9.3"
+  },
+  "type": "module",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

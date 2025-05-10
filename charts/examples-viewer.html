@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArielJS Examples Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #4a86e8;
+            --secondary-color: #f1f3f4;
+            --border-color: #dadce0;
+            --bg-color: #f8f9fa;
+            --text-color: #202124;
+            --card-bg: white;
+            --code-bg: #f5f5f5;
+            --hover-bg: #f5f5f5;
+            --active-bg: #e8f0fe;
+            --subtitle-color: #5f6368;
+            --card-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+            --button-radius: 20px;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #81a9ff;
+            --secondary-color: #2c2c2c;
+            --border-color: #3c3c3c;
+            --bg-color: #1a1a1a;
+            --text-color: #e1e1e1;
+            --card-bg: #2a2a2a;
+            --code-bg: #333;
+            --hover-bg: #333;
+            --active-bg: #3d5a98;
+            --subtitle-color: #aaa;
+            --card-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            transition: all 0.3s ease;
+        }
+        
+        header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .subtitle {
+            color: #5f6368;
+            margin-top: 5px;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+        
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+        }
+
+        .example-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .example-item {
+            padding: 12px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-bottom: 8px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .example-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .example-item.active {
+            background-color: var(--active-bg);
+            color: var(--primary-color);
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+        }
+
+        .example-title {
+            margin-top: 0;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .example-description {
+            margin-bottom: 20px;
+            color: var(--subtitle-color);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            background-color: var(--active-bg);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-block {
+            position: relative;
+            background-color: var(--code-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        pre {
+            margin: 0;
+            padding: 18px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            color: var(--text-color);
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            padding: 30px 10px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            margin: 0 auto;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--button-radius);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .copy-btn:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+        }
+
+        .refresh-btn {
+            margin-left: auto;
+            padding: 6px 12px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--button-radius);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .refresh-btn:hover {
+            opacity: 1;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+            background: var(--secondary-color);
+            border-radius: var(--button-radius);
+            padding: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            width: 60px;
+            height: 30px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            left: 3px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+
+        .theme-toggle[data-mode="dark"]::before {
+            transform: translateX(30px);
+            background: #5d8adb;
+        }
+
+        .theme-toggle .light-icon, .theme-toggle .dark-icon {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+
+        .theme-toggle .light-icon {
+            right: 7px;
+            opacity: 0.9;
+            transform: scale(1);
+        }
+
+        .theme-toggle .dark-icon {
+            left: 7px;
+            opacity: 0;
+            transform: scale(0.7);
+        }
+
+        .theme-toggle[data-mode="dark"] .light-icon {
+            opacity: 0;
+            transform: scale(0.7);
+        }
+
+        .theme-toggle[data-mode="dark"] .dark-icon {
+            opacity: 0.9;
+            transform: scale(1);
+        }
+
+        /* Add transition on body too */
+        body, .card, .sidebar, .code-block, pre, .mermaid, .tab {
+            transition: all 0.3s ease;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex-grow: 1;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-style: italic;
+            color: var(--subtitle-color);
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+        }
+
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+        }
+
+        [data-theme="dark"] .error {
+            background-color: #641e1e;
+            color: #ff9e9e;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-content">
+                <h1>ArielJS Examples Gallery</h1>
+                <div class="subtitle">Interactive examples of Mermaid flowcharts with ArielJS code</div>
+            </div>
+            <div class="theme-toggle" id="theme-toggle" data-mode="light">
+                <span class="light-icon">☀️</span>
+                <span class="dark-icon">🌙</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h2>Examples</h2>
+            <ul class="example-list" id="example-list">
+                <!-- Example items will be populated here -->
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h3 class="example-title" id="example-title">Select an example</h3>
+                <p class="example-description" id="example-description">Choose an example from the sidebar to view.</p>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('render')">Rendered Chart</div>
+                    <div class="tab" onclick="switchTab('mermaid')">Mermaid Code</div>
+                    <div class="tab" onclick="switchTab('ariel')">ArielJS Code</div>
+                    <button class="refresh-btn" onclick="refreshCurrentExample()">↻ Refresh</button>
+                </div>
+                
+                <div id="tab-render" class="tab-content active">
+                    <div id="chart" class="mermaid">
+                        <div class="loading">Select an example to render a chart</div>
+                    </div>
+                </div>
+                
+                <div id="tab-mermaid" class="tab-content">
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyMermaid()">Copy</button>
+                        <pre id="mermaid-code">// Select an example to view Mermaid code</pre>
+                    </div>
+                </div>
+                
+                <div id="tab-ariel" class="tab-content">
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyAriel()">Copy</button>
+                        <pre id="ariel-code">// Select an example to view ArielJS code</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Example metadata
+        const examples = [
+            {
+                id: 'basic-flowchart',
+                title: 'Basic Flowchart',
+                file: 'basic-flowchart.md'
+            },
+            {
+                id: 'left-right-flow',
+                title: 'Left-to-Right Flow',
+                file: 'left-right-flow.md'
+            },
+            {
+                id: 'subgraph-example',
+                title: 'Subgraph Example',
+                file: 'subgraph-example.md'
+            },
+            {
+                id: 'simplified-flow',
+                title: 'Simplified Flow API',
+                file: 'simplified-flow.md'
+            },
+            {
+                id: 'complex-flowchart',
+                title: 'Complex Flowchart',
+                file: 'complex-flowchart.md'
+            },
+            {
+                id: 'flowchart-with-styles',
+                title: 'Styled Flowchart',
+                file: 'flowchart-with-styles.md'
+            },
+            {
+                id: 'sequence-diagram',
+                title: 'Sequence Diagram',
+                file: 'sequence-diagram.md'
+            },
+            {
+                id: 'class-diagram',
+                title: 'Class Diagram',
+                file: 'class-diagram.md'
+            },
+            {
+                id: 'state-diagram',
+                title: 'State Diagram',
+                file: 'state-diagram.md'
+            },
+            {
+                id: 'er-diagram',
+                title: 'ER Diagram',
+                file: 'er-diagram.md'
+            },
+            {
+                id: 'gantt-chart',
+                title: 'Gantt Chart',
+                file: 'gantt-chart.md'
+            },
+            {
+                id: 'pie-chart',
+                title: 'Pie Chart',
+                file: 'pie-chart.md'
+            },
+            {
+                id: 'mindmap-diagram',
+                title: 'Mind Map',
+                file: 'mindmap-diagram.md'
+            },
+            {
+                id: 'mindmap-with-chaining',
+                title: 'Mind Map (Chained)',
+                file: 'mindmap-with-chaining.md'
+            },
+            {
+                id: 'journey-diagram',
+                title: 'User Journey',
+                file: 'journey-diagram.md'
+            },
+            {
+                id: 'timeline-diagram',
+                title: 'Timeline',
+                file: 'timeline-diagram.md'
+            },
+            {
+                id: 'requirement-diagram',
+                title: 'Requirements',
+                file: 'requirement-diagram.md'
+            },
+            {
+                id: 'gitgraph-example',
+                title: 'Git Graph',
+                file: 'gitgraph-example.md'
+            }
+        ];
+        
+        // Initialize mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true
+            }
+        });
+
+        // Force reset mermaid on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Clear any previous mermaid state
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.contentLoaded();
+                }
+            } catch (error) {
+                console.error('Error initializing mermaid:', error);
+            }
+        });
+        
+        // Populate example list
+        function populateExampleList() {
+            const exampleList = document.getElementById('example-list');
+            examples.forEach(example => {
+                const li = document.createElement('li');
+                li.className = 'example-item';
+                li.dataset.id = example.id;
+                li.textContent = example.title;
+                li.onclick = () => loadExample(example);
+                exampleList.appendChild(li);
+            });
+        }
+        
+        // Load example
+        async function loadExample(example, forceRefresh = false) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // Update the current example tracker
+                    currentExample = example;
+                    // Update active example in list
+                    document.querySelectorAll('.example-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    document.querySelector(`.example-item[data-id="${example.id}"]`).classList.add('active');
+
+                    // Update title and clear previous content
+                    document.getElementById('example-title').textContent = example.title;
+                    document.getElementById('chart').innerHTML = '<div class="loading">Loading chart...</div>';
+                    document.getElementById('mermaid-code').textContent = 'Loading...';
+                    document.getElementById('ariel-code').textContent = 'Loading...';
+
+                    // Fetch the markdown file with cache-busting query parameter
+                    const timestamp = new Date().getTime(); // Add current timestamp to prevent caching
+                    const response = await fetch(`examples/${example.file}?t=${timestamp}`, {
+                        cache: 'no-store' // Tell browser not to use cache
+                    });
+                    const markdown = await response.text();
+
+                    // Extract description (first paragraph)
+                    const description = markdown.split('\n\n')[1];
+                    document.getElementById('example-description').textContent = description;
+
+                    // Extract mermaid code
+                    const mermaidMatch = markdown.match(/```mermaid\n([\s\S]*?)```/);
+                    if (!mermaidMatch) {
+                        throw new Error('No mermaid code found in the markdown file');
+                    }
+
+                    const mermaidCode = mermaidMatch[1].trim();
+                    document.getElementById('mermaid-code').textContent = mermaidCode;
+
+                    // Set up the chart div
+                    const chartDiv = document.getElementById('chart');
+
+                    // Clear the chart div
+                    chartDiv.innerHTML = '';
+
+                    // Create a new div with unique ID for Mermaid
+                    const mermaidDiv = document.createElement('div');
+                    const uniqueId = 'mermaid-' + Math.random().toString(36).substring(2, 10);
+                    mermaidDiv.id = uniqueId;
+                    mermaidDiv.className = 'mermaid';
+                    mermaidDiv.textContent = mermaidCode;
+                    chartDiv.appendChild(mermaidDiv);
+
+                    // Regenerate the Mermaid chart
+                    try {
+                        mermaid.contentLoaded();
+                        await mermaid.init(undefined, `#${uniqueId}`);
+                    } catch (mermaidError) {
+                        console.error('Mermaid rendering error:', mermaidError);
+                        mermaidDiv.innerHTML = `<div class="error">Error rendering chart: ${mermaidError.message}</div>`;
+                    }
+
+                    // Generate ArielJS code
+                    const arielJSCode = await generateArielJSCode(mermaidCode);
+                    document.getElementById('ariel-code').textContent = arielJSCode;
+
+                    // Resolve the promise once everything is done
+                    resolve();
+
+                } catch (error) {
+                    console.error('Error loading example:', error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.textContent = `Error loading example: ${error.message}`;
+                    document.getElementById('chart').innerHTML = '';
+                    document.getElementById('chart').appendChild(errorDiv);
+
+                    // Reject the promise on error
+                    reject(error);
+                }
+            });
+        }
+        
+        // Generate ArielJS code from Mermaid code
+        async function generateArielJSCode(mermaidCode) {
+            // Try to determine the type of diagram
+            const firstLine = mermaidCode.trim().split('\n')[0].trim();
+            let diagramType = 'flowchart';
+            let direction = 'TD';
+
+            // Determine the diagram type from the first line
+            if (firstLine.startsWith('flowchart ') || firstLine.startsWith('graph ')) {
+                diagramType = 'flowchart';
+                direction = firstLine.split(' ')[1] || 'TD';
+            } else if (firstLine.startsWith('sequenceDiagram')) {
+                diagramType = 'sequence';
+            } else if (firstLine.startsWith('classDiagram')) {
+                diagramType = 'class';
+            } else if (firstLine.startsWith('erDiagram')) {
+                diagramType = 'er';
+            } else if (firstLine.startsWith('stateDiagram')) {
+                diagramType = 'state';
+            } else if (firstLine.startsWith('gantt')) {
+                diagramType = 'gantt';
+            } else if (firstLine.startsWith('pie')) {
+                diagramType = 'pie';
+            } else if (firstLine.startsWith('journey')) {
+                diagramType = 'journey';
+            } else if (firstLine.startsWith('mindmap')) {
+                diagramType = 'mindmap';
+            } else if (firstLine.startsWith('gitGraph')) {
+                diagramType = 'git';
+            }
+
+            // For predefined examples, continue using the existing code
+            if (mermaidCode.includes('A("Start: Initialization")')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Build the flowchart using the simplified flow API
+const ariel = createArielJS();
+const chart = ariel('flowchart', 'TD')
+    .flow('A', 'Start: Initialization', { shape: 'round' })
+    .to('B', 'Process Data', { shape: 'diamond' })
+
+    // Success path
+    .flow('B')
+    .to('C', 'Visualize Results', { shape: 'round' }, 'Success')
+    .to('E', 'End', { shape: 'round' })
+
+    // Failure path
+    .flow('B')
+    .to('D', 'Log Error', { shape: 'round' }, 'Failure')
+    .to('E')
+
+    // Apply styles
+    .style('A', {"fill":"#a3d2ca","stroke":"#333","stroke-width":"2px"})
+    .style('B', {"fill":"#f6c6ea","stroke":"#333","stroke-width":"2px"})
+    .style('C', {"fill":"#ff97b7","stroke":"#333","stroke-width":"2px"})
+    .style('D', {"fill":"#ff97b7","stroke":"#333","stroke-width":"2px"})
+    .style('E', {"fill":"#e2eafc","stroke":"#333","stroke-width":"2px"});
+
+console.log(chart.toMermaid());`;
+            } else if (mermaidCode.includes('flowchart LR') && !mermaidCode.includes('Simplified Flow API')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Build the flowchart using the simplified flow API
+const ariel = createArielJS();
+const chart = ariel('flowchart', 'LR')
+    // Main flow
+    .flow('A', 'Start', { shape: 'stadium' })
+    .to('B', 'Process 1', { shape: 'rect' })
+    .to('C', 'Process 2', { shape: 'rect' })
+    .to('D', 'Decision', { shape: 'diamond' })
+
+    // Yes branch
+    .flow('D')  // Start from Decision node
+    .to('E', 'Process 3', { shape: 'rect' }, 'Yes')  // D → E with "Yes" label
+    .to('G', 'End', { shape: 'stadium' })  // E → G
+
+    // No branch
+    .flow('D')  // Start from Decision node again
+    .to('F', 'Process 4', { shape: 'rect' }, 'No')  // D → F with "No" label
+    .to('G')  // F → G (no need to redefine G)
+
+    // Apply styles
+    .style('A', {"fill":"#d4f1f9","stroke":"#05445E"})
+    .style('G', {"fill":"#d4f1f9","stroke":"#05445E"})
+    .style('D', {"fill":"#ffadad","stroke":"#800000"})
+    .style('B', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('C', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('E', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('F', {"fill":"#fdffb6","stroke":"#5a5a5a"});
+
+console.log(chart.toMermaid());`;
+            } else if (mermaidCode.includes('Simplified Flow API')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Build the flowchart using the simplified flow API
+const ariel = createArielJS();
+const chart = ariel('flowchart', 'LR')
+    // Define the entire flow with the new streamlined API
+    .flow('A', 'Start', { shape: 'stadium' })
+    .to('B', 'Process 1', { shape: 'round' })
+    .to('C', 'Process 2', { shape: 'round' })
+    .to('D', 'Decision', { shape: 'diamond' })
+
+    // Create branch 1 (Yes path)
+    .flow('D')  // Start from Decision node
+    .to('E', 'Process 3', { shape: 'round' }, 'Yes')  // D → E with "Yes" label
+    .to('G', 'End', { shape: 'stadium' })  // E → G
+
+    // Create branch 2 (No path)
+    .flow('D')  // Start from Decision node again
+    .to('F', 'Process 4', { shape: 'round' }, 'No')  // D → F with "No" label
+    .to('G')  // F → G (no need to redefine G)
+
+    // Apply styles
+    .style('A', {"fill":"#d4f1f9","stroke":"#05445E"})
+    .style('G', {"fill":"#d4f1f9","stroke":"#05445E"})
+    .style('D', {"fill":"#ffadad","stroke":"#800000"})
+    .style('B', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('C', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('E', {"fill":"#fdffb6","stroke":"#5a5a5a"})
+    .style('F', {"fill":"#fdffb6","stroke":"#5a5a5a"});
+
+console.log(chart.toMermaid());`;
+            } else if (mermaidCode.includes('subgraph')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Build the flowchart
+const ariel = createArielJS();
+const chart = ariel('flowchart', 'TD')
+    // Main flow
+    .flow('A', 'Start', { shape: 'rect' })
+    .to('B', 'Input Processing', { shape: 'rect' })
+    .to('C', 'Input Valid?', { shape: 'diamond' })
+
+    // Data Processing subgraph
+    .subgraph('Processing', 'Data Processing', g => g
+        .flow('C')
+        .to('D', 'Process Data', { shape: 'rect' }, 'Yes')
+        .to('E', 'Analyze Results', { shape: 'rect' })
+        .to('F', 'Generate Report', { shape: 'rect' })
+    )
+
+    // Error Handling subgraph
+    .subgraph('Error', 'Error Handling', g => g
+        .flow('C')
+        .to('G', 'Log Error', { shape: 'rect' }, 'No')
+        .to('H', 'Send Alert', { shape: 'rect' })
+        .to('I', 'Display Error', { shape: 'rect' })
+    )
+
+    // Define the end node
+    .node('J', 'End', { shape: 'rect' })
+
+    // Connect to end node
+    .flow('F')
+    .to('J')
+
+    .flow('I')
+    .to('J')
+
+    // Apply styles
+    .style('A', {"fill":"#bbdefb","stroke":"#1976d2"})
+    .style('J', {"fill":"#bbdefb","stroke":"#1976d2"})
+    .style('C', {"fill":"#ffcc80","stroke":"#e65100"})
+    .style('Processing', {"fill":"#e3f2fd","stroke":"#1976d2","stroke-dasharray":"5 5"})
+    .style('Error', {"fill":"#ffebee","stroke":"#c62828","stroke-dasharray":"5 5"});
+
+console.log(chart.toMermaid());`;
+            } else if (mermaidCode.includes('sequenceDiagram')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a sequence diagram
+const ariel = createArielJS();
+const diagram = ariel('sequence')
+    ${mermaidCode.split('\n').slice(1).map(line => {
+        if (line.includes('participant')) {
+            const parts = line.trim().split(' ');
+            if (parts[0] === 'actor') {
+                return `.participant('${parts[1]}', null, { type: 'actor' })`;
+            } else {
+                const match = line.match(/participant\s+(\w+)(?:\s+as\s+(\w+))?/);
+                if (match) {
+                    const [_, name, alias] = match;
+                    return alias ? `.participant('${name}', '${alias}')` : `.participant('${name}')`;
+                }
+                return `.participant('${parts[1]}')`;
+            }
+        } else if (line.includes('->')) {
+            const match = line.match(/(\w+)(->>|-->)(\w+):\s*(.*)/);
+            if (match) {
+                const [_, from, arrow, to, text] = match;
+                return `.message('${from}', '${to}', '${text}', { type: '${arrow}' })`;
+            }
+        } else if (line.includes('Note')) {
+            const match = line.match(/Note\s+(over|right of|left of)\s+(\w+(?:,\w+)?):\s*(.*)/);
+            if (match) {
+                const [_, position, actors, text] = match;
+                if (position === 'over') {
+                    const actorList = actors.split(',');
+                    return `.noteOver(['${actorList.join("', '")}'], '${text}')`;
+                } else if (position === 'right of') {
+                    return `.noteRight('${actors}', '${text}')`;
+                } else {
+                    return `.noteLeft('${actors}', '${text}')`;
+                }
+            }
+        } else if (line.includes('loop')) {
+            return `.loop('${line.replace('loop', '').trim()}', loop => {`;
+        } else if (line === 'end') {
+            return `})`;
+        }
+        return '';
+    }).filter(line => line).join('\n    ')};
+
+console.log(diagram.toMermaid());`;
+            } else if (mermaidCode.includes('classDiagram')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a class diagram
+const ariel = createArielJS();
+const diagram = ariel('class');
+
+// Add the class definitions and relationships
+${mermaidCode.split('\n').slice(1).map(line => {
+    if (line.match(/^class\s+\w+/)) {
+        const match = line.match(/class\s+(\w+)/);
+        if (match) return `.class('${match[1]}')`;
+    } else if (line.match(/^(\w+)\s+(\<|\.|o|\*|\-\-|\.\.)(\-\-|\|>|\>)(\w+)/)) {
+        const match = line.match(/^(\w+)\s+([<.|o*-]+)(\w+)/);
+        if (match) {
+            const [_, from, relationship, to] = match;
+            if (relationship.includes('<|--')) {
+                return `.inheritance('${from}', '${to}')`;
+            } else if (relationship.includes('o--')) {
+                return `.aggregation('${from}', '${to}')`;
+            } else if (relationship.includes('*--')) {
+                return `.composition('${from}', '${to}')`;
+            } else if (relationship.includes('-->')) {
+                return `.association('${from}', '${to}')`;
+            } else if (relationship.includes('..>')) {
+                return `.dependency('${from}', '${to}')`;
+            } else if (relationship.includes('..|>')) {
+                return `.realization('${from}', '${to}')`;
+            } else {
+                return `.relationship('${from}', '${to}', '${relationship}')`;
+            }
+        }
+    }
+    return '';
+}).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (mermaidCode.includes('erDiagram')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create an Entity Relationship diagram
+const ariel = createArielJS();
+const diagram = ariel('er');
+
+// Add entities and relationships
+${mermaidCode.split('\n').slice(1).map(line => {
+    // Handle entities with attributes
+    if (line.match(/^\w+\s+{\s*$/)) {
+        const entityName = line.split(' ')[0];
+        return `.entity('${entityName}')`;
+    }
+    // Handle relationships
+    else if (line.match(/^\w+\s+(\|o|\|\||}o|})\-\-(\|o|\|\||}o|})\s+\w+/)) {
+        const match = line.match(/^(\w+)\s+(\|o|\|\||}o|})\-\-(\|o|\|\||}o|})\s+(\w+)\s+:\s+(.+)/);
+        if (match) {
+            const [_, entity1, cardinality1, cardinality2, entity2, label] = match;
+            return `.relationship('${entity1}', '${entity2}', '${cardinality1}--${cardinality2}', '${label}')`;
+        }
+    }
+    return '';
+}).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (mermaidCode.includes('stateDiagram')) {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a State diagram
+const ariel = createArielJS();
+const diagram = ariel('state');
+
+// Add states and transitions
+${mermaidCode.split('\n').slice(1).map(line => {
+    // Handle state definitions
+    if (line.match(/^state\s+"\w+"/)) {
+        const match = line.match(/state\s+"([^"]+)"\s+as\s+(\w+)/);
+        if (match) {
+            const [_, label, id] = match;
+            return `.state('${id}', '${label}')`;
+        }
+    }
+    // Handle transitions
+    else if (line.match(/^\w+\s+-->\s+\w+/)) {
+        const match = line.match(/^(\w+)\s+-->\s+(\w+)(?:\s+:\s+(.+))?/);
+        if (match) {
+            const [_, from, to, label] = match;
+            return label
+                ? `.transition('${from}', '${to}', '${label}')`
+                : `.transition('${from}', '${to}')`;
+        }
+    }
+    // Handle start/end transitions
+    else if (line.match(/^\[\*\]\s+-->/)) {
+        const match = line.match(/^\[\*\]\s+-->\s+(\w+)/);
+        if (match) return `.start('${match[1]}')`;
+    }
+    else if (line.match(/^\w+\s+-->\s+\[\*\]/)) {
+        const match = line.match(/^(\w+)\s+-->\s+\[\*\]/);
+        if (match) return `.end('${match[1]}')`;
+    }
+    return '';
+}).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (diagramType === 'gantt') {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a Gantt chart
+const ariel = createArielJS();
+const diagram = ariel('gantt')
+    .setTitle('${mermaidCode.match(/title\s+(.+)/)?.[1] || 'Project Schedule'}')
+    .setDateFormat('${mermaidCode.match(/dateFormat\s+(.+)/)?.[1] || 'YYYY-MM-DD'}');
+
+// Add sections and tasks
+${mermaidCode.split('\n')
+    .filter(line => line.trim().startsWith('section') ||
+                   (line.trim() && !line.includes('title') && !line.includes('dateFormat')))
+    .map(line => {
+        if (line.trim().startsWith('section')) {
+            return `.section('${line.replace('section', '').trim()}')`;
+        } else {
+            // Simple task parsing - this could be enhanced for complex gantt tasks
+            const parts = line.trim().split(':');
+            if (parts.length >= 2) {
+                const taskName = parts[0].trim();
+                const rest = parts.slice(1).join(':').trim();
+
+                // Handle different task types
+                if (rest.includes('milestone')) {
+                    return `.milestone('${taskName}', '${taskName.toLowerCase().replace(/\s+/g, '_')}')`;
+                } else {
+                    return `.task('${taskName}', '${taskName.toLowerCase().replace(/\s+/g, '_')}')`;
+                }
+            }
+        }
+        return '';
+    }).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (diagramType === 'pie') {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a Pie chart
+const ariel = createArielJS();
+const diagram = ariel('pie')
+    .title('${mermaidCode.match(/title\s+(.+)/)?.[1] || 'Data Distribution'}');
+
+// Add data points
+${mermaidCode.split('\n')
+    .filter(line => line.includes(':') && !line.includes('title') && !line.includes('showData'))
+    .map(line => {
+        const parts = line.trim().split(':');
+        if (parts.length === 2) {
+            const label = parts[0].trim().replace(/"/g, '');
+            const value = parseFloat(parts[1].trim());
+            return `.valueSet('${label}', ${value})`;
+        }
+        return '';
+    }).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (diagramType === 'journey') {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a User Journey chart
+const ariel = createArielJS();
+const diagram = ariel('journey')
+    .title('${mermaidCode.match(/title\s+(.+)/)?.[1] || 'User Journey'}');
+
+// Add sections and tasks
+${mermaidCode.split('\n')
+    .filter(line => line.trim().startsWith('section') ||
+                   (line.includes(':') && !line.includes('title')))
+    .map(line => {
+        if (line.trim().startsWith('section')) {
+            return `.section('${line.replace('section', '').trim()}')`;
+        } else {
+            // Task format: Task name: score: participants
+            const parts = line.trim().split(':');
+            if (parts.length >= 3) {
+                const taskName = parts[0].trim();
+                const score = parseInt(parts[1].trim());
+                const participants = parts[2].trim().split(',').map(p => p.trim());
+
+                return `.task('${taskName}', ${score}, ['${participants.join("', '")}'])`;
+            }
+        }
+        return '';
+    }).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            } else if (diagramType === 'mindmap') {
+                // For mindmaps, we use a manually crafted example that clearly shows the proper chaining
+                // This is much more reliable than trying to generate it algorithmically
+
+                // Extract the root name from the mermaid code
+                let rootName = 'Root Node';
+                const rootMatch = mermaidCode.match(/root\\s*\\(([^)]+)\\)/);
+                if (rootMatch) {
+                    rootName = rootMatch[1].trim();
+                }
+
+                // Generate a hardcoded example with correct chaining
+                // This shows the RIGHT way to use the API with chaining
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a Mindmap with proper chaining
+const ariel = createArielJS({useNewApi: true});
+const mindmap = ariel('mindmap')
+    .root('${rootName.replace(/'/g, "\\'")}')
+    .child('Frontend')
+        .child('JavaScript')
+            .child('React')
+            .sibling('Vue')
+            .sibling('Angular')
+        .parent('CSS')
+            .child('Sass')
+            .sibling('Less')
+            .sibling('Tailwind')
+        .parent('HTML')
+            .child('HTML5')
+            .sibling('ARIA')
+    .parent('Backend')
+        .child('Python')
+            .child('Django')
+            .sibling('Flask')
+            .sibling('FastAPI')
+        .parent('Java')
+            .child('Spring')
+            .sibling('Hibernate')
+        .parent('Go')
+            .child('Gin')
+            .sibling('Echo')
+        .parent('Databases')
+            .child('SQL')
+            .sibling('NoSQL');
+
+// Note how the indentation in the code visually represents
+// the structure of the mindmap - this makes it much easier
+// to understand and maintain.
+
+console.log(mindmap.toMermaid());`;
+            } else if (diagramType === 'git') {
+                return `import createArielJS from '../src/ariel-js.js.new';
+
+// Create a Git Graph
+const ariel = createArielJS();
+const diagram = ariel('git');
+
+// Add branches and commits
+${mermaidCode.split('\n')
+    .filter(line => !line.startsWith('gitGraph'))
+    .map(line => {
+        const line_trim = line.trim();
+        if (line_trim.startsWith('commit')) {
+            const messageMatch = line_trim.match(/commit(?:\\s+id:\\s+"([^"]+)")?(?:\\s+"([^"]+)")?(?:\\s+tag:\\s+"([^"]+)")?/);
+            if (messageMatch) {
+                const id = messageMatch[1] ? `id: "${messageMatch[1]}", ` : '';
+                const message = messageMatch[2] || '';
+                const tag = messageMatch[3] ? `, tag: "${messageMatch[3]}"` : '';
+                return `.commit('${message}', { ${id}${tag} })`;
+            } else {
+                return `.commit()`;
+            }
+        } else if (line_trim.startsWith('branch')) {
+            const branchMatch = line_trim.match(/branch\\s+(\\w+)/);
+            if (branchMatch) {
+                return `.branch('${branchMatch[1]}')`;
+            }
+        } else if (line_trim.startsWith('checkout')) {
+            const checkoutMatch = line_trim.match(/checkout\\s+(\\w+)/);
+            if (checkoutMatch) {
+                return `.checkout('${checkoutMatch[1]}')`;
+            }
+        } else if (line_trim.startsWith('merge')) {
+            const mergeMatch = line_trim.match(/merge\\s+(\\w+)(?:\\s+"([^"]+)")?/);
+            if (mergeMatch) {
+                const branch = mergeMatch[1];
+                const message = mergeMatch[2] || '';
+                return `.merge('${branch}', '${message}')`;
+            }
+        }
+        return '';
+    }).filter(line => line).join('\n')};
+
+console.log(diagram.toMermaid());`;
+            }
+
+            // Generic handler for other diagram types
+            return `import createArielJS from '../src/ariel-js.js.new';
+
+// Note: This diagram type (${diagramType}) has been converted to a simple ArielJS example
+// You may need to adjust this code for your specific needs
+
+const ariel = createArielJS();
+const diagram = ariel('${diagramType}'${diagramType === 'flowchart' ? `, '${direction}'` : ''});
+
+// For now, this is just a scaffold for you to build upon
+${mermaidCode.split('\n').slice(1).map(line =>
+    `// ${line.trim()}`
+).join('\n')}
+
+console.log(diagram.toMermaid());`;
+        }
+        
+        // Tab switching function
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Activate the selected tab and content
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+
+            // No need to re-render chart here - it's handled when the example is loaded
+        }
+        
+        // Copy functions
+        function copyMermaid() {
+            const code = document.getElementById('mermaid-code').textContent;
+            navigator.clipboard.writeText(code);
+            const btn = document.querySelector('#tab-mermaid .copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+            }, 2000);
+        }
+        
+        function copyAriel() {
+            const code = document.getElementById('ariel-code').textContent;
+            navigator.clipboard.writeText(code);
+            const btn = document.querySelector('#tab-ariel .copy-btn');
+            btn.textContent = 'Copied!';
+            setTimeout(() => {
+                btn.textContent = 'Copy';
+            }, 2000);
+        }
+        
+        // Current example tracking
+        let currentExample = null;
+
+        // Function to refresh the current example
+        function refreshCurrentExample() {
+            if (currentExample) {
+                loadExample(currentExample, true);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            populateExampleList();
+
+            // Helper function to enhance dark mode rendering
+            function enhanceMermaidDarkMode() {
+                // Check if we're in dark mode
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+
+                if (isDarkMode) {
+                    // Give some time for the chart to render
+                    setTimeout(() => {
+                        // Get all mermaid charts
+                        const charts = document.querySelectorAll('.mermaid');
+                        charts.forEach(chart => {
+                            // Target all node text labels
+                            const labels = chart.querySelectorAll('text');
+                            labels.forEach(label => {
+                                label.style.fill = '#fff';
+                                label.style.fontWeight = 'bold';
+                            });
+
+                            // Style specific node types by inferring their role
+                            const nodes = chart.querySelectorAll('.node');
+                            if (nodes.length > 0) {
+                                // Decision node - usually has a polygon
+                                const decisionNodes = chart.querySelectorAll('.node polygon');
+                                decisionNodes.forEach(node => {
+                                    node.style.fill = '#553333';
+                                    node.style.stroke = '#775555';
+                                });
+
+                                // First and last nodes are usually start/end
+                                if (nodes[0]) {
+                                    const startNode = nodes[0].querySelector('rect');
+                                    if (startNode) {
+                                        startNode.style.fill = '#2a4065';
+                                        startNode.style.stroke = '#5d8adb';
+                                    }
+                                }
+
+                                if (nodes[nodes.length - 1]) {
+                                    const endNode = nodes[nodes.length - 1].querySelector('rect');
+                                    if (endNode) {
+                                        endNode.style.fill = '#2a4065';
+                                        endNode.style.stroke = '#5d8adb';
+                                    }
+                                }
+                            }
+
+                            // Set chart background
+                            const svg = chart.querySelector('svg');
+                            if (svg) {
+                                svg.style.backgroundColor = '#252525';
+                                svg.style.borderRadius = '12px';
+                            }
+                        });
+                    }, 500); // Delay to ensure chart is rendered
+                }
+            }
+
+            // Load the first example by default
+            if (examples.length > 0) {
+                currentExample = examples[0];
+                loadExample(currentExample).then(() => {
+                    enhanceMermaidDarkMode();
+                });
+            }
+
+            // Dark mode toggle functionality
+            const themeToggle = document.getElementById('theme-toggle');
+
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('arieljs-theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeToggle.setAttribute('data-mode', 'dark');
+
+                // Create dark mode styles for mermaid
+                const darkModeStyles = `
+                    /* Set background color for all node shapes */
+                    .mermaid .node rect,
+                    .mermaid .node circle,
+                    .mermaid .node ellipse,
+                    .mermaid .node polygon,
+                    .mermaid .node path {
+                        fill: #444 !important;
+                        stroke: #666 !important;
+                    }
+
+                    /* Decision diamond node (rhombus) */
+                    .mermaid .node polygon {
+                        fill: #553333 !important;
+                        stroke: #775555 !important;
+                    }
+
+                    /* Start/End nodes (usually rounds/stadiums) */
+                    .mermaid .node:first-of-type rect,
+                    .mermaid .node:last-of-type rect {
+                        fill: #2a4065 !important;
+                        stroke: #5d8adb !important;
+                    }
+
+                    /* All edge paths */
+                    .mermaid .edgePath .path {
+                        stroke: #aaa !important;
+                        stroke-width: 2px !important;
+                    }
+
+                    /* Edge labels */
+                    .mermaid .edgeLabel rect {
+                        fill: #2a2a2a !important;
+                        opacity: 0.8 !important;
+                    }
+
+                    /* Make all text white and bold */
+                    .mermaid .nodeLabel,
+                    .mermaid text,
+                    .mermaid .edgeLabel text {
+                        color: #fff !important;
+                        fill: #fff !important;
+                        font-weight: bold !important;
+                        font-family: system-ui, -apple-system, sans-serif !important;
+                    }
+
+                    /* Dark backdrop for the chart */
+                    .mermaid svg {
+                        background-color: #252525 !important;
+                        border-radius: var(--border-radius) !important;
+                    }
+
+                    /* Make arrowheads visible */
+                    .mermaid marker {
+                        fill: #aaa !important;
+                    }
+                `;
+
+                // Create style element for mermaid
+                const styleEl = document.createElement('style');
+                styleEl.id = 'mermaid-style-override';
+                styleEl.textContent = darkModeStyles;
+                document.head.appendChild(styleEl);
+
+                // Update mermaid theme
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'neutral',
+                    securityLevel: 'loose',
+                    flowchart: {
+                        useMaxWidth: false,
+                        htmlLabels: true,
+                        curve: 'basis'
+                    }
+                });
+            }
+
+            // Toggle theme when the button is clicked
+            themeToggle.addEventListener('click', function() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                let targetTheme = 'light';
+                let targetMode = 'light';
+
+                if (!currentTheme || currentTheme === 'light') {
+                    targetTheme = 'dark';
+                    targetMode = 'dark';
+                }
+
+                // Set the theme
+                document.documentElement.setAttribute('data-theme', targetTheme);
+                themeToggle.setAttribute('data-mode', targetMode);
+                localStorage.setItem('arieljs-theme', targetTheme);
+
+                // Create modified styles for the mermaid chart
+                const darkModeModifier = targetTheme === 'dark' ?
+                    `/* Set background color for all node shapes */
+                    .mermaid .node rect,
+                    .mermaid .node circle,
+                    .mermaid .node ellipse,
+                    .mermaid .node polygon,
+                    .mermaid .node path {
+                        fill: #444 !important;
+                        stroke: #666 !important;
+                    }
+
+                    /* Decision diamond node (rhombus) */
+                    .mermaid .node polygon {
+                        fill: #553333 !important;
+                        stroke: #775555 !important;
+                    }
+
+                    /* Start/End nodes (usually rounds/stadiums) */
+                    .mermaid .node:first-of-type rect,
+                    .mermaid .node:last-of-type rect {
+                        fill: #2a4065 !important;
+                        stroke: #5d8adb !important;
+                    }
+
+                    /* All edge paths */
+                    .mermaid .edgePath .path {
+                        stroke: #aaa !important;
+                        stroke-width: 2px !important;
+                    }
+
+                    /* Edge labels */
+                    .mermaid .edgeLabel rect {
+                        fill: #2a2a2a !important;
+                        opacity: 0.8 !important;
+                    }
+
+                    /* Make all text white and bold */
+                    .mermaid .nodeLabel,
+                    .mermaid text,
+                    .mermaid .edgeLabel text {
+                        color: #fff !important;
+                        fill: #fff !important;
+                        font-weight: bold !important;
+                        font-family: system-ui, -apple-system, sans-serif !important;
+                    }
+
+                    /* Dark backdrop for the chart */
+                    .mermaid svg {
+                        background-color: #252525 !important;
+                        border-radius: var(--border-radius) !important;
+                    }
+
+                    /* Make arrowheads visible */
+                    .mermaid marker {
+                        fill: #aaa !important;
+                    }
+                    ` : '';
+
+                // Create or update the style element for mermaid
+                let styleEl = document.getElementById('mermaid-style-override');
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = 'mermaid-style-override';
+                    document.head.appendChild(styleEl);
+                }
+                styleEl.textContent = darkModeModifier;
+
+                // Update mermaid theme
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'neutral', // Use neutral theme so our custom styles work better
+                    securityLevel: 'loose',
+                    flowchart: {
+                        useMaxWidth: false,
+                        htmlLabels: true,
+                        curve: 'basis'
+                    }
+                });
+
+                // Function to enhance dark mode rendering of charts
+                function enhanceMermaidDarkMode() {
+                    if (targetTheme === 'dark') {
+                        // Give some time for the chart to render
+                        setTimeout(() => {
+                            // Get all mermaid charts
+                            const charts = document.querySelectorAll('.mermaid');
+                            charts.forEach(chart => {
+                                // Target all node text labels
+                                const labels = chart.querySelectorAll('text');
+                                labels.forEach(label => {
+                                    label.style.fill = '#fff';
+                                    label.style.fontWeight = 'bold';
+                                });
+
+                                // Style specific node types by inferring their role
+                                const nodes = chart.querySelectorAll('.node');
+                                if (nodes.length > 0) {
+                                    // Decision node - usually has a polygon
+                                    const decisionNodes = chart.querySelectorAll('.node polygon');
+                                    decisionNodes.forEach(node => {
+                                        node.style.fill = '#553333';
+                                        node.style.stroke = '#775555';
+                                    });
+
+                                    // First and last nodes are usually start/end
+                                    if (nodes[0]) {
+                                        const startNode = nodes[0].querySelector('rect');
+                                        if (startNode) {
+                                            startNode.style.fill = '#2a4065';
+                                            startNode.style.stroke = '#5d8adb';
+                                        }
+                                    }
+
+                                    if (nodes[nodes.length - 1]) {
+                                        const endNode = nodes[nodes.length - 1].querySelector('rect');
+                                        if (endNode) {
+                                            endNode.style.fill = '#2a4065';
+                                            endNode.style.stroke = '#5d8adb';
+                                        }
+                                    }
+                                }
+
+                                // Set chart background
+                                const svg = chart.querySelector('svg');
+                                if (svg) {
+                                    svg.style.backgroundColor = '#252525';
+                                    svg.style.borderRadius = '12px';
+                                }
+                            });
+                        }, 500); // Delay to ensure chart is rendered
+                    }
+                }
+
+                // Refresh the current example to apply the new theme
+                if (currentExample) {
+                    loadExample(currentExample, true).then(() => {
+                        enhanceMermaidDarkMode();
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

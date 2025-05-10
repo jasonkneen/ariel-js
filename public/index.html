@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArielJS Demo</title>
+    <script src="https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script type="module">
+        import createArielJS from '../src/ariel-js.js';
+        const builder = createArielJS();
+        const diagram = builder
+            .graph('LR')
+            .node('A', 'Start')
+            .edge('B', 'Next')
+            .node('B', 'End')
+            .subgraph('Group', 'Processing', b => b
+                .node('C', 'Subtask')
+            )
+            .note('Demo note');
+        const mermaidText = diagram.toMermaid();
+        document.getElementById('diagram').innerText = mermaidText;
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    <h1>ArielJS Demo</h1>
+    <div id="diagram" class="mermaid"></div>
+</body>
+</html>
