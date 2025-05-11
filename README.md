@@ -19,14 +19,27 @@ ArielJS is a jQuery-style, chainable JavaScript SDK for creating and converting 
 - **Git Graphs** - for visualizing git workflows
 - ... and more\!
 
-## Setup
+## Installation
 
-1. Navigate to the project directory:
+### Via npm
+
+```bash
+npm install ariel-js
+```
+
+### Manual Setup
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/yourusername/ariel-js-project.git
+   ```
+
+2. Navigate to the project directory:
    ```bash
    cd ariel-js-project
    ```
 
-2. Install dependencies:
+3. Install dependencies:
    ```bash
    npm install
    ```
@@ -56,7 +69,11 @@ ArielJS is a jQuery-style, chainable JavaScript SDK for creating and converting 
 ### Creating Diagrams
 
 ```javascript
-import createArielJS from './src/ariel-js.js';
+// If installed via npm
+import createArielJS from 'ariel-js';
+
+// OR if using local files
+// import createArielJS from './src/ariel-js.js';
 
 // Create a specific diagram type
 const ariel = createArielJS();
