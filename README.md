@@ -5,6 +5,8 @@
 
 ArielJS is a jQuery-style, chainable JavaScript SDK for creating and converting Mermaid diagrams. It supports ALL Mermaid diagram types, with fluent API interfaces, bidirectional conversion, and customizable terminology.
 
+![alt text](public/charts.gif)
+
 ## Supported Diagram Types
 
 - **Flowcharts** - with simplified flow API for connected nodes
@@ -180,6 +182,64 @@ const mermaid = 'graph TD; A-->B;';
 console.log(createArielJS().fromMermaid(mermaid));
 ```
 
+## Example Driven Development
+
+ArielJS includes a set of example diagrams that can help you understand how to use the library.
+
+### Example: Basic Flowchart
+
+**Mermaid code:**
+```mermaid
+flowchart TD
+    A("Start: Initialization")
+    B{"Process Data"}
+    C("Visualize Results")
+    D("Log Error")
+    E("End")
+
+    A --> B
+    B -->|Success| C
+    B -->|Failure| D
+    C --> E
+    D --> E
+
+    style A fill:#a3d2ca,stroke:#333,stroke-width:2px;
+    style B fill:#f6c6ea,stroke:#333,stroke-width:2px;
+    style C fill:#ff97b7,stroke:#333,stroke-width:2px;
+    style D fill:#ff97b7,stroke:#333,stroke-width:2px;
+    style E fill:#e2eafc,stroke:#333,stroke-width:2px;
+```
+
+**Equivalent ArielJS code:**
+```javascript
+import createArielJS from 'ariel-js';
+
+// Build the flowchart using the simplified flow API
+const ariel = createArielJS();
+const chart = ariel('flowchart', 'TD')
+    .flow('A', 'Start: Initialization', { shape: 'round' })
+    .to('B', 'Process Data', { shape: 'diamond' })
+
+    // Success path
+    .flow('B')
+    .to('C', 'Visualize Results', { shape: 'round' }, 'Success')
+    .to('E', 'End', { shape: 'round' })
+
+    // Failure path
+    .flow('B')
+    .to('D', 'Log Error', { shape: 'round' }, 'Failure')
+    .to('E')
+
+    // Apply styles
+    .style('A', {"fill":"#a3d2ca","stroke":"#333","stroke-width":"2px"})
+    .style('B', {"fill":"#f6c6ea","stroke":"#333","stroke-width":"2px"})
+    .style('C', {"fill":"#ff97b7","stroke":"#333","stroke-width":"2px"})
+    .style('D', {"fill":"#ff97b7","stroke":"#333","stroke-width":"2px"})
+    .style('E', {"fill":"#e2eafc","stroke":"#333","stroke-width":"2px"});
+
+console.log(chart.toMermaid());
+```
+
 ## Files
 
 - `src/ariel-js.js`: The ArielJS library
@@ -187,4 +247,5 @@ console.log(createArielJS().fromMermaid(mermaid));
 - `tests/all-diagram-types.js`: Examples of all diagram types
 - `charts/examples-viewer.html`: Interactive diagram viewer
 - `charts/examples/`: Example diagrams in Markdown format
+- `charts/example-converted.js`: Example of converted JavaScript code
 - `LICENSE`: MIT License
