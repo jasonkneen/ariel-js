@@ -1,5 +1,5 @@
 {
-  "name": "ariel-js-project",
+  "name": "@jasonkneen/ariel-js",
   "version": "1.0.0",
   "description": "ArielJS: A chainable JavaScript SDK for Mermaid flowcharts",
   "main": "src/ariel-js.js",
@@ -14,7 +14,24 @@
   "directories": {
     "test": "tests"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "mermaid",
+    "chainable",
+    "javascript",
+    "sdk",
+    "diagram",
+    "flowchart",
+    "sequence",
+    "class",
+    "entity",
+    "relationship",
+    "state",
+    "gantt",
+    "pie",
+    "user journey",
+    "mindmap",
+    "git graph"
+  ],
+  "author": "Jason Kneen",
+  "license": "MIT"
 }

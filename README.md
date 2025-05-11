@@ -170,4 +170,4 @@ console.log(createArielJS().fromMermaid(mermaid));
 - `tests/all-diagram-types.js`: Examples of all diagram types
 - `charts/examples-viewer.html`: Interactive diagram viewer
 - `charts/examples/`: Example diagrams in Markdown format
-EOL < /dev/null
+- `LICENSE`: MIT License
