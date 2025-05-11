@@ -3,7 +3,16 @@
 
 # ArielJS Project
 
-ArielJS is a jQuery-style, chainable JavaScript SDK for creating and converting Mermaid diagrams. It supports ALL Mermaid diagram types, with fluent API interfaces, bidirectional conversion, and customizable terminology.
+ArielJS is a jQuery-style, chainable JavaScript SDK for creating and converting Mermaid diagrams.
+
+```javascript
+// Express your diagrams naturally with a chainable API
+flowchart.flow('Start').to('Process').to('Decision')
+  .flow('Decision').to('Yes Path', {}, 'Yes')
+  .flow('Decision').to('No Path', {}, 'No');
+```
+
+ArielJS supports ALL Mermaid diagram types with an emphasis on fluent, chainable interfaces that make your diagrams easy to read and maintain. It also provides bidirectional conversion and customizable terminology to fit your specific domain language.
 
 ![alt text](public/charts.gif)
 
@@ -184,7 +193,7 @@ console.log(createArielJS().fromMermaid(mermaid));
 
 ## Example Driven Development
 
-ArielJS includes a set of example diagrams that can help you understand how to use the library.
+ArielJS uses a chainable API that makes diagram creation intuitive and readable. The chains follow a consistent pattern, with each method returning `this` to allow method chaining. The indentation in your code can visually represent the structure of your diagram, making complex diagrams easier to understand and maintain.
 
 ### Example: Basic Flowchart
 
@@ -242,7 +251,17 @@ console.log(chart.toMermaid());
 
 ## API Glossary
 
-The ArielJS library provides a consistent, chainable API for all diagram types. Here's a comprehensive glossary:
+The ArielJS library provides a consistent, chainable API for all diagram types. The core verbs follow these patterns:
+
+| Verb Pattern | Purpose | Examples |
+|--------------|---------|----------|
+| **add/create** | Add elements to diagrams | `node()`, `entity()`, `participant()` |
+| **connect** | Create relationships | `edge()`, `to()`, `message()` |
+| **set** | Configure diagrams | `setDirection()`, `setTitle()` |
+| **annotate** | Add documentation | `note()`, `style()` |
+| **group** | Create containers | `subgraph()`, `section()`, `loop()` |
+
+Here's a comprehensive glossary of methods by diagram type:
 
 ### Common Methods (All Diagram Types)
 - `toMermaid()` - Converts the diagram to Mermaid syntax
@@ -301,19 +320,53 @@ The ArielJS library provides a consistent, chainable API for all diagram types. 
 - `parent(text, shape)` - Moves up to parent level and adds a node
 
 ### Custom Terminology
-You can customize the API terminology to match your domain:
+You can customize the API terminology to match your domain-specific language:
 
 ```javascript
-const builder = createArielJS({
+// Create a factory with domain-specific terminology
+const processBuilder = createArielJS({
     methods: {
-        addStep: 'node',         // Rename node() to addStep()
-        connectTo: 'edge'        // Rename edge() to connectTo()
+        // Mapping custom method names to standard methods
+        addStep: 'node',         // Use addStep() instead of node()
+        connectTo: 'edge',       // Use connectTo() instead of edge()
+        startFlow: 'flow',       // Use startFlow() instead of flow()
+        connectNext: 'to'        // Use connectNext() instead of to()
     },
     properties: {
-        nodeType: 'shape',       // Rename shape property to nodeType
-        linkType: 'type'         // Rename type property to linkType
+        // Mapping custom property names to standard properties
+        stepType: 'shape',       // Use stepType instead of shape in options
+        connectionType: 'type',  // Use connectionType instead of type in options
+        stepStyle: 'style'       // Use stepStyle instead of style in options
     }
 });
+
+// Using the custom terminology for a workflow process
+const workflow = processBuilder('flowchart', 'TD')
+    .addStep('A', 'Start Process', { stepType: 'stadium' })
+    .connectTo('B', 'Validate Input')
+    .addStep('C', 'Decision', { stepType: 'diamond' });
+
+// You can use either standard or custom terms in the same chain
+workflow
+    .startFlow('C')
+    .connectNext('D', 'Process Data', {}, 'Yes')
+    .connectTo('F', 'Complete', { stepType: 'stadium' });
+
+// Custom terminology makes your code more readable in your domain
+const inventory = createArielJS({
+    methods: {
+        addProduct: 'entity',
+        addAttribute: 'attribute',
+        connects: 'relationship'
+    }
+});
+
+// Example with inventory domain terminology
+const dbModel = inventory('er')
+    .addProduct('PRODUCT')
+    .addAttribute('PRODUCT', 'sku', 'string', 'PK')
+    .addProduct('CATEGORY')
+    .connects('PRODUCT', 'CATEGORY', '||--|{', 'belongs to');
 ```
 
 ## Files
