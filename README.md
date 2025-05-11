@@ -319,62 +319,188 @@ Here's a comprehensive glossary of methods by diagram type:
 - `sibling(text, shape)` - Adds a sibling to the current node and moves to it
 - `parent(text, shape)` - Moves up to parent level and adds a node
 
-### Custom Terminology
-You can customize the API terminology to match your domain-specific language:
+## Advanced Adapters
+
+ArielJS provides a powerful adapter system that allows you to customize the API to fit your specific domain language, terminology, and workflow patterns.
+
+### 1. Method Name Customization
+
+The most basic form of adaptation is renaming methods to use domain-specific terminology:
 
 ```javascript
-// Create a factory with domain-specific terminology
-const processBuilder = createArielJS({
+const workflowBuilder = createArielJS({
     methods: {
-        // Mapping custom method names to standard methods
+        // Map custom method names to standard methods
         addStep: 'node',         // Use addStep() instead of node()
         connectTo: 'edge',       // Use connectTo() instead of edge()
-        startFlow: 'flow',       // Use startFlow() instead of flow()
-        connectNext: 'to'        // Use connectNext() instead of to()
-    },
-    properties: {
-        // Mapping custom property names to standard properties
-        stepType: 'shape',       // Use stepType instead of shape in options
-        connectionType: 'type',  // Use connectionType instead of type in options
-        stepStyle: 'style'       // Use stepStyle instead of style in options
+        startAt: 'flow',         // Use startAt() instead of flow()
+        goTo: 'to'               // Use goTo() instead of to()
     }
 });
 
-// Using the custom terminology for a workflow process
-const workflow = processBuilder('flowchart', 'TD')
-    .addStep('A', 'Start Process', { stepType: 'stadium' })
-    .connectTo('B', 'Validate Input')
-    .addStep('C', 'Decision', { stepType: 'diamond' });
-
-// You can use either standard or custom terms in the same chain
-workflow
-    .startFlow('C')
-    .connectNext('D', 'Process Data', {}, 'Yes')
-    .connectTo('F', 'Complete', { stepType: 'stadium' });
-
-// Custom terminology makes your code more readable in your domain
-const inventory = createArielJS({
-    methods: {
-        addProduct: 'entity',
-        addAttribute: 'attribute',
-        connects: 'relationship'
-    }
-});
-
-// Example with inventory domain terminology
-const dbModel = inventory('er')
-    .addProduct('PRODUCT')
-    .addAttribute('PRODUCT', 'sku', 'string', 'PK')
-    .addProduct('CATEGORY')
-    .connects('PRODUCT', 'CATEGORY', '||--|{', 'belongs to');
+// Using domain-specific method names
+const workflow = workflowBuilder('flowchart', 'TD')
+    .addStep('A', 'Start Process', { shape: 'stadium' })
+    .connectTo('B', 'Process Data')
+    .startAt('B')
+    .goTo('C', 'Output', {}, 'Complete');
 ```
+
+### 2. Property Name Customization
+
+You can rename property keys to match your domain terminology:
+
+```javascript
+const processBuilder = createArielJS({
+    properties: {
+        // Use domain-specific property names
+        stepType: 'shape',       // Use stepType instead of shape
+        primaryColor: 'fill',    // Use primaryColor instead of fill
+        borderColor: 'stroke',   // Use borderColor instead of stroke
+        connectionType: 'type'   // Use connectionType instead of type
+    }
+});
+
+// Using domain-specific property names
+const process = processBuilder('flowchart', 'TD')
+    .node('A', 'Start', {
+        stepType: 'stadium',
+        primaryColor: '#bbdefb',
+        borderColor: '#1976d2'
+    });
+```
+
+### 3. Parameter Reordering
+
+You can rearrange method parameters to create more natural APIs for your domain:
+
+```javascript
+const apiBuilder = createArielJS({
+    parameters: {
+        // Swap the id and label parameters for node method
+        // Original: node(id, label, options)
+        // New: node(label, id, options)
+        node: [1, 0, 2],
+
+        // Move the label to be the first parameter for edge
+        // Original: edge(targetId, label, options)
+        // New: edge(label, targetId, options)
+        edge: [2, 0, 1]
+    }
+});
+
+// Using reordered parameters for more natural APIs
+const api = apiBuilder('flowchart', 'LR')
+    // Instead of node(id, label, options)
+    .node('Start Process', 'A', { shape: 'stadium' })
+    // Instead of edge(targetId, label, options)
+    .edge('Process', 'B');
+```
+
+### 4. Custom Methods
+
+You can create completely new methods that implement complex operations:
+
+```javascript
+const pipelineBuilder = createArielJS({
+    customMethods: {
+        // Add a specialized method for creating pipeline segments
+        segment: function(id, name, type, options = {}) {
+            // Choose shape based on segment type
+            const shape = type === 'source' ? 'circle' :
+                          type === 'sink' ? 'stadium' : 'rect';
+
+            // Create the node with appropriate styling
+            return this.node(id, name, {
+                shape,
+                style: { fill: options.color || '#f5f5f5' }
+            });
+        },
+
+        // Add a specialized method for data flows
+        dataFlow: function(fromId, toId, dataLabel) {
+            return this.node(fromId)
+                   .edge(toId, dataLabel || 'data');
+        }
+    }
+});
+
+// Using custom domain-specific methods
+const pipeline = pipelineBuilder('flowchart', 'LR')
+    .segment('SRC', 'Data Source', 'source', { color: '#bbdefb' })
+    .dataFlow('SRC', 'PROC', 'raw data')
+    .segment('PROC', 'Process', 'processor', { color: '#c8e6c9' })
+    .dataFlow('PROC', 'SINK', 'processed data')
+    .segment('SINK', 'Database', 'sink', { color: '#ffccbc' });
+```
+
+### 5. Complete Domain-Specific Adapters
+
+Combine all of these capabilities to create complete domain-specific languages:
+
+```javascript
+// Factory function for creating data pipeline diagrams
+const createPipeline = () => {
+    return createArielJS({
+        // Custom method names for pipeline terminology
+        methods: {
+            source: 'node',
+            processor: 'node',
+            sink: 'node',
+            pipe: 'edge'
+        },
+
+        // Custom properties for pipeline components
+        properties: {
+            sourceType: 'shape',
+            processorType: 'shape',
+            sinkType: 'shape',
+            dataType: 'label'
+        },
+
+        // Custom methods for pipeline operations
+        customMethods: {
+            extract: function(id, source) {
+                return this.node(id, `Extract from ${source}`, { shape: 'circle' });
+            },
+
+            transform: function(id, operation) {
+                return this.node(id, `Transform: ${operation}`, { shape: 'rect' });
+            },
+
+            load: function(id, destination) {
+                return this.node(id, `Load to ${destination}`, { shape: 'stadium' });
+            }
+        }
+    })('flowchart', 'LR'); // Always create a left-to-right flowchart
+};
+
+// Using a complete domain-specific adapter
+const etlPipeline = createPipeline()
+    .extract('E1', 'MySQL')
+    .pipe('T1', 'raw records')
+    .transform('T1', 'Filter & Clean')
+    .pipe('T2', 'clean records')
+    .transform('T2', 'Aggregate')
+    .pipe('L1', 'summary data')
+    .load('L1', 'Data Warehouse');
+```
+
+See [examples/adapter.js](examples/adapter.js) for complete examples of creating and using adapters.
 
 ## Files
 
 - `src/ariel-js.js`: The ArielJS library
-- `tests/test.js`: Basic test script
-- `tests/all-diagram-types.js`: Examples of all diagram types
-- `charts/examples-viewer.html`: Interactive diagram viewer
-- `charts/examples/`: Example diagrams in Markdown format
-- `charts/example-converted.js`: Example of converted JavaScript code
+- `tests/`: Test scripts and examples
+  - `test.js`: Basic test script
+  - `all-diagram-types.js`: Examples of all diagram types
+  - `bidirectional-test.js`: Tests for Mermaid conversion
+  - `flow-api-test.js`: Tests for the simplified flow API
+  - `mindmap-test.js`: Tests for mindmap chaining
+- `examples/`: Advanced usage examples
+  - `adapter.js`: Examples of custom adapters and domain-specific APIs
+- `charts/`: Diagram examples and viewers
+  - `examples-viewer.html`: Interactive diagram viewer
+  - `examples/`: Example diagrams in Markdown format
+  - `example-converted.js`: Example of converted JavaScript code
 - `LICENSE`: MIT License

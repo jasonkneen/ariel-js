@@ -1554,35 +1554,79 @@ function applyTerminologyMapping(diagram, config) {
         }
     }
 
-    // Support property name mapping in methods
+    // Support property name mapping for methods with options objects
     if (config.properties) {
-        // For node method
-        if (diagram.node) {
-            const originalNode = diagram.node;
-            diagram.node = function(id, label, options = {}) {
-                const mappedOptions = { ...options };
-                for (const [customProp, origProp] of Object.entries(config.properties)) {
-                    if (mappedOptions[customProp] !== undefined) {
-                        mappedOptions[origProp] = mappedOptions[customProp];
-                        delete mappedOptions[customProp];
-                    }
-                }
-                return originalNode.call(this, id, label, mappedOptions);
-            };
-        }
+        // Get all methods on the diagram object
+        const methodNames = Object.getOwnPropertyNames(Object.getPrototypeOf(diagram))
+            .filter(name => typeof diagram[name] === 'function' && name !== 'constructor');
 
-        // For edge method
-        if (diagram.edge) {
-            const originalEdge = diagram.edge;
-            diagram.edge = function(targetId, label = '', options = {}) {
-                const mappedOptions = { ...options };
-                for (const [customProp, origProp] of Object.entries(config.properties)) {
-                    if (mappedOptions[customProp] !== undefined) {
-                        mappedOptions[origProp] = mappedOptions[customProp];
-                        delete mappedOptions[customProp];
+        // For each method, check if it has options parameters
+        for (const methodName of methodNames) {
+            const originalMethod = diagram[methodName];
+
+            // Skip any method that has already been mapped
+            if (originalMethod._isMapped) continue;
+
+            // Create a wrapper method that maps property names
+            diagram[methodName] = function(...args) {
+                // Look for objects in args that might be options
+                const mappedArgs = args.map(arg => {
+                    if (arg && typeof arg === 'object' && !Array.isArray(arg)) {
+                        // Create a copy of the options
+                        const mappedOptions = { ...arg };
+
+                        // Map property names
+                        for (const [customProp, origProp] of Object.entries(config.properties)) {
+                            if (mappedOptions[customProp] !== undefined) {
+                                mappedOptions[origProp] = mappedOptions[customProp];
+                                delete mappedOptions[customProp];
+                            }
+                        }
+
+                        return mappedOptions;
                     }
-                }
-                return originalEdge.call(this, targetId, label, mappedOptions);
+                    return arg;
+                });
+
+                // Call the original method with the mapped arguments
+                return originalMethod.apply(this, mappedArgs);
+            };
+
+            // Mark the method as mapped to avoid double-wrapping
+            diagram[methodName]._isMapped = true;
+        }
+    }
+
+    // If there are parameter mappings, apply them
+    if (config.parameters) {
+        // For each method that has parameter transformations
+        for (const [methodName, paramMap] of Object.entries(config.parameters)) {
+            if (diagram[methodName]) {
+                const originalMethod = diagram[methodName];
+
+                // Create a wrapper that remaps parameters
+                diagram[methodName] = function(...args) {
+                    // Transform args based on parameter mapping
+                    const newArgs = [];
+
+                    // Use the map to place args in their new positions
+                    for (let i = 0; i < paramMap.length; i++) {
+                        const sourceIndex = paramMap[i];
+                        newArgs[i] = args[sourceIndex !== undefined ? sourceIndex : i];
+                    }
+
+                    return originalMethod.apply(this, newArgs);
+                };
+            }
+        }
+    }
+
+    // Apply any additional custom methods that perform complex operations
+    if (config.customMethods) {
+        for (const [methodName, implementation] of Object.entries(config.customMethods)) {
+            diagram[methodName] = function(...args) {
+                // Bind the implementation to this diagram instance
+                return implementation.apply(this, args);
             };
         }
     }
