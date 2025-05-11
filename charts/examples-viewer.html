@@ -638,7 +638,7 @@
 
             // For predefined examples, continue using the existing code
             if (mermaidCode.includes('A("Start: Initialization")')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Build the flowchart using the simplified flow API
 const ariel = createArielJS();
@@ -665,7 +665,7 @@ const chart = ariel('flowchart', 'TD')
 
 console.log(chart.toMermaid());`;
             } else if (mermaidCode.includes('flowchart LR') && !mermaidCode.includes('Simplified Flow API')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Build the flowchart using the simplified flow API
 const ariel = createArielJS();
@@ -697,7 +697,7 @@ const chart = ariel('flowchart', 'LR')
 
 console.log(chart.toMermaid());`;
             } else if (mermaidCode.includes('Simplified Flow API')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Build the flowchart using the simplified flow API
 const ariel = createArielJS();
@@ -729,7 +729,7 @@ const chart = ariel('flowchart', 'LR')
 
 console.log(chart.toMermaid());`;
             } else if (mermaidCode.includes('subgraph')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Build the flowchart
 const ariel = createArielJS();
@@ -774,7 +774,7 @@ const chart = ariel('flowchart', 'TD')
 
 console.log(chart.toMermaid());`;
             } else if (mermaidCode.includes('sequenceDiagram')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a sequence diagram
 const ariel = createArielJS();
@@ -821,7 +821,7 @@ const diagram = ariel('sequence')
 
 console.log(diagram.toMermaid());`;
             } else if (mermaidCode.includes('classDiagram')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a class diagram
 const ariel = createArielJS();
@@ -858,7 +858,7 @@ ${mermaidCode.split('\n').slice(1).map(line => {
 
 console.log(diagram.toMermaid());`;
             } else if (mermaidCode.includes('erDiagram')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create an Entity Relationship diagram
 const ariel = createArielJS();
@@ -884,7 +884,7 @@ ${mermaidCode.split('\n').slice(1).map(line => {
 
 console.log(diagram.toMermaid());`;
             } else if (mermaidCode.includes('stateDiagram')) {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a State diagram
 const ariel = createArielJS();
@@ -924,7 +924,7 @@ ${mermaidCode.split('\n').slice(1).map(line => {
 
 console.log(diagram.toMermaid());`;
             } else if (diagramType === 'gantt') {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a Gantt chart
 const ariel = createArielJS();
@@ -959,7 +959,7 @@ ${mermaidCode.split('\n')
 
 console.log(diagram.toMermaid());`;
             } else if (diagramType === 'pie') {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a Pie chart
 const ariel = createArielJS();
@@ -981,7 +981,7 @@ ${mermaidCode.split('\n')
 
 console.log(diagram.toMermaid());`;
             } else if (diagramType === 'journey') {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a User Journey chart
 const ariel = createArielJS();
@@ -1023,7 +1023,7 @@ console.log(diagram.toMermaid());`;
 
                 // Generate a hardcoded example with correct chaining
                 // This shows the RIGHT way to use the API with chaining
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a Mindmap with proper chaining
 const ariel = createArielJS({useNewApi: true});
@@ -1062,7 +1062,7 @@ const mindmap = ariel('mindmap')
 
 console.log(mindmap.toMermaid());`;
             } else if (diagramType === 'git') {
-                return `import createArielJS from '../src/ariel-js.js.new';
+                return `import createArielJS from '../src/ariel-js.js';
 
 // Create a Git Graph
 const ariel = createArielJS();
@@ -1108,7 +1108,7 @@ console.log(diagram.toMermaid());`;
             }
 
             // Generic handler for other diagram types
-            return `import createArielJS from '../src/ariel-js.js.new';
+            return `import createArielJS from '../src/ariel-js.js';
 
 // Note: This diagram type (${diagramType}) has been converted to a simple ArielJS example
 // You may need to adjust this code for your specific needs
