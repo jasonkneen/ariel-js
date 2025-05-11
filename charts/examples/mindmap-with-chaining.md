@@ -40,7 +40,7 @@ The key advantage of ArielJS is the fluent API that allows for chaining methods:
 ```javascript
 import createArielJS from '../src/ariel-js.js';
 
-const ariel = createArielJS({useNewApi: true});
+const ariel = createArielJS();
 const mindmap = ariel('mindmap');
 
 mindmap

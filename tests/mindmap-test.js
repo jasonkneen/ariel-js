@@ -8,8 +8,8 @@ console.log('=== MINDMAP CHAIN TEST ===');
     const module = await import('../src/ariel-js.js');
     const createArielJS = module.default;
     
-    // Create an ArielJS instance with the useNewApi flag
-    const ariel = createArielJS({useNewApi: true});
+    // Create an ArielJS instance
+    const ariel = createArielJS();
     
     // Create a mindmap
     const mindmap = ariel('mindmap');

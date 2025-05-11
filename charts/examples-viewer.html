@@ -1021,12 +1021,12 @@ console.log(diagram.toMermaid());`;
                     rootName = rootMatch[1].trim();
                 }
 
-                // Generate a hardcoded example with correct chaining
-                // This shows the RIGHT way to use the API with chaining
+                // Generate a hardcoded example with proper chaining
+                // This shows how to use the chaining API for mindmaps effectively
                 return `import createArielJS from '../src/ariel-js.js';
 
 // Create a Mindmap with proper chaining
-const ariel = createArielJS({useNewApi: true});
+const ariel = createArielJS();
 const mindmap = ariel('mindmap')
     .root('${rootName.replace(/'/g, "\\'")}')
     .child('Frontend')

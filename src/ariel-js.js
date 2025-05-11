@@ -237,18 +237,39 @@ class FlowchartJS extends FlowchartDiagram {
         };
     }
 
-    // For backwards compatibility with original API
     getGlossary() {
         return {
             methods: {
+                // Flow direction methods
                 'graph': 'Sets the direction of the flowchart',
-                'node': 'Creates a node in the flowchart',
-                'edge': 'Creates an edge between nodes',
-                'subgraph': 'Creates a subgraph containing nodes'
+                'setDirection': 'Sets the direction of the flowchart (TB, TD, BT, RL, LR)',
+                'direction': 'Sets the direction of the flowchart (alias for setDirection)',
+
+                // Node and edge methods
+                'node': 'Creates or selects a node in the flowchart',
+                'edge': 'Creates an edge between the current node and a target node',
+
+                // Simplified flow API
+                'flow': 'Starts a flow from a specific node (creates it if needed)',
+                'to': 'Adds a node connected to the previous node in the flow',
+
+                // Structure and organization
+                'subgraph': 'Creates a subgraph containing nodes and edges',
+
+                // Styling
+                'style': 'Applies CSS-style properties to a node or edge',
+                'class': 'Assigns one or more CSS classes to nodes'
             },
             properties: {
-                'shape': 'The shape of a node (rect, circle, diamond, etc.)',
-                'type': 'The type of an edge (-->, -.-, etc.)'
+                // Node properties
+                'shape': 'The shape of a node (rect, round, stadium, diamond, circle, etc.)',
+                'style': 'Custom CSS style properties for visual appearance',
+                'metadata': 'Additional data to store with the node (not rendered)',
+
+                // Edge properties
+                'type': 'The type of an edge (-->, -.-, etc.)',
+                'style': 'Custom CSS style properties for the edge',
+                'metadata': 'Additional data to store with the edge (not rendered)'
             }
         };
     }
@@ -1465,35 +1486,80 @@ class ArielJSFactory {
 function createArielJS(config = {}) {
     const factory = new ArielJSFactory();
 
-    // For backwards compatibility with the original API
-    if (Object.keys(config).length === 0) {
-        // Return a flowchart directly if no config is provided
-        const flowchart = new FlowchartJS();
-        flowchart.fromMermaid = ArielJSFactory.fromMermaid.bind(ArielJSFactory);
-        return flowchart;
+    // Handle the legacy direct flowchart return vs. factory function
+    const isFactoryMode = Boolean(config.factoryMode !== false);
+
+    // First, set up basic diagram factory or flowchart
+    let result;
+
+    if (isFactoryMode) {
+        // Modern API: Create a function that returns a new diagram based on type
+        result = function(type = 'flowchart', ...args) {
+            return ArielJSFactory.createDiagram(type, ...args);
+        };
+
+        // Add static methods to the function
+        result.fromMermaid = ArielJSFactory.fromMermaid.bind(ArielJSFactory);
+
+        // Add convenience method for creating flowcharts
+        result.create = (direction = 'TD') => result('flowchart', direction);
+
+        // Add glossary method for documentation
+        result.getGlossary = () => {
+            const flowchart = new FlowchartJS();
+            return flowchart.getGlossary();
+        };
+    } else {
+        // Legacy API: Return a flowchart directly
+        result = new FlowchartJS();
+        result.fromMermaid = ArielJSFactory.fromMermaid.bind(ArielJSFactory);
     }
 
-    // Handle custom terminology config
+    // Handle custom terminology mapping
     if (config.methods || config.properties) {
-        const flowchart = new FlowchartJS();
-        flowchart.fromMermaid = ArielJSFactory.fromMermaid.bind(ArielJSFactory);
+        // For factory mode, we'll create a wrapper function with custom terminology
+        if (isFactoryMode) {
+            const originalFactory = result;
 
-        // Add custom method names
-        if (config.methods) {
-            for (const [customName, originalName] of Object.entries(config.methods)) {
-                if (flowchart[originalName]) {
-                    flowchart[customName] = function(...args) {
-                        return this[originalName](...args);
-                    };
-                }
+            // Create a new factory function that applies terminology mapping
+            result = function(type = 'flowchart', ...args) {
+                const diagram = originalFactory(type, ...args);
+                applyTerminologyMapping(diagram, config);
+                return diagram;
+            };
+
+            // Copy over the static methods
+            result.fromMermaid = originalFactory.fromMermaid;
+            result.create = originalFactory.create;
+            result.getGlossary = originalFactory.getGlossary;
+        } else {
+            // For direct flowchart, apply terminology mapping directly
+            applyTerminologyMapping(result, config);
+        }
+    }
+
+    return result;
+}
+
+// Helper function to apply terminology mapping
+function applyTerminologyMapping(diagram, config) {
+    // Add custom method names
+    if (config.methods) {
+        for (const [customName, originalName] of Object.entries(config.methods)) {
+            if (diagram[originalName]) {
+                diagram[customName] = function(...args) {
+                    return this[originalName](...args);
+                };
             }
         }
+    }
 
-        // Support property name mapping in methods
-        if (config.properties) {
-            // Override node method to handle custom property names
-            const originalNode = flowchart.node;
-            flowchart.node = function(id, label, options = {}) {
+    // Support property name mapping in methods
+    if (config.properties) {
+        // For node method
+        if (diagram.node) {
+            const originalNode = diagram.node;
+            diagram.node = function(id, label, options = {}) {
                 const mappedOptions = { ...options };
                 for (const [customProp, origProp] of Object.entries(config.properties)) {
                     if (mappedOptions[customProp] !== undefined) {
@@ -1503,10 +1569,12 @@ function createArielJS(config = {}) {
                 }
                 return originalNode.call(this, id, label, mappedOptions);
             };
+        }
 
-            // Override edge method to handle custom property names
-            const originalEdge = flowchart.edge;
-            flowchart.edge = function(targetId, label = '', options = {}) {
+        // For edge method
+        if (diagram.edge) {
+            const originalEdge = diagram.edge;
+            diagram.edge = function(targetId, label = '', options = {}) {
                 const mappedOptions = { ...options };
                 for (const [customProp, origProp] of Object.entries(config.properties)) {
                     if (mappedOptions[customProp] !== undefined) {
@@ -1517,23 +1585,9 @@ function createArielJS(config = {}) {
                 return originalEdge.call(this, targetId, label, mappedOptions);
             };
         }
-
-        return flowchart;
     }
 
-    // Create a function that returns a new diagram based on type
-    const arielJS = function(type = 'flowchart', ...args) {
-        return ArielJSFactory.createDiagram(type, ...args);
-    };
-
-    // Copy static methods from factory to the function
-    arielJS.fromMermaid = ArielJSFactory.fromMermaid.bind(ArielJSFactory);
-
-    // Backwards compatibility: allow directly creating a flowchart
-    return Object.assign(arielJS, {
-        // Create a flowchart by default if called without a type
-        create: (direction = 'TD') => arielJS('flowchart', direction)
-    });
+    return diagram;
 }
 
 export default createArielJS;

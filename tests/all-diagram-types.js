@@ -1,7 +1,7 @@
 import createArielJS from '../src/ariel-js.js';
 
-// Create an instance of ArielJS with a configuration object to use the new API
-const ariel = createArielJS({useNewApi: true});
+// Create an instance of ArielJS
+const ariel = createArielJS();
 
 // 1. Flowchart Example
 console.log('=== FLOWCHART DIAGRAM ===');

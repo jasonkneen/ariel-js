@@ -240,6 +240,82 @@ const chart = ariel('flowchart', 'TD')
 console.log(chart.toMermaid());
 ```
 
+## API Glossary
+
+The ArielJS library provides a consistent, chainable API for all diagram types. Here's a comprehensive glossary:
+
+### Common Methods (All Diagram Types)
+- `toMermaid()` - Converts the diagram to Mermaid syntax
+- `addLine(line, indent)` - Adds a line to the diagram with specified indentation
+- `addLines(lines, indent)` - Adds multiple lines to the diagram
+
+### Flowchart Methods
+- `graph(direction)` - Sets the direction of the flowchart (TB, TD, BT, RL, LR)
+- `setDirection(direction)` - Sets the direction of the flowchart (alias)
+- `node(id, label, options)` - Creates a node with the specified ID and label
+- `edge(targetId, label, options)` - Creates an edge from the current node to the target
+- `subgraph(id, label, callback)` - Creates a subgraph/container with nested content
+- `style(selector, properties)` - Applies CSS-style properties to a node or edge
+- `class(className, ...nodeIds)` - Assigns CSS classes to nodes
+- `note(text, target)` - Adds a comment/note to the diagram
+- `flow(id, label, options)` - Simplified API: starts a flow from a specific node
+- `to(id, label, nodeOptions, edgeLabel, edgeOptions)` - Simplified API: adds a connected node
+
+### Sequence Diagram Methods
+- `participant(name, alias, options)` - Adds an actor/participant to the diagram
+- `message(from, to, text, options)` - Creates a message between actors
+- `note(position, actors, text)` - Adds a note to one or more actors
+- `noteOver(actors, text)` - Adds a note over actors
+- `noteLeft(actor, text)` - Adds a note to the left of an actor
+- `noteRight(actor, text)` - Adds a note to the right of an actor
+- `loop(label, callback)` - Creates a loop section
+- `alt(label, callback)` - Starts an alternative section
+- `else(label, callback)` - Adds an else branch to an alt section
+- `opt(label, callback)` - Creates an optional section
+- `par(label, callback)` - Creates a parallel section
+- `activate(actor)` - Activates an actor (showing it's processing)
+- `deactivate(actor)` - Deactivates an actor
+- `destroy(actor)` - Marks an actor as destroyed
+
+### Class Diagram Methods
+- `class(name, definition)` - Defines a class
+- `attribute(className, attrName, type, visibility)` - Adds an attribute to a class
+- `method(className, methodName, returnType, params, visibility)` - Adds a method to a class
+- `inheritance(child, parent)` - Creates an inheritance relationship
+- `composition(container, contained)` - Creates a composition relationship
+- `aggregation(container, contained)` - Creates an aggregation relationship
+- `association(from, to)` - Creates an association relationship
+- `dependency(dependent, dependency)` - Creates a dependency relationship
+
+### Entity Relationship Diagram Methods
+- `entity(name, attributes)` - Defines an entity
+- `attribute(entityName, name, type, key, comment)` - Adds an attribute to an entity
+- `oneToOne(entity1, entity2, label)` - Creates a one-to-one relationship
+- `oneToMany(entity1, entity2, label)` - Creates a one-to-many relationship
+- `manyToMany(entity1, entity2, label)` - Creates a many-to-many relationship
+
+### Mindmap Methods
+- `root(text)` - Creates the root node of the mindmap
+- `child(text, shape)` - Adds a child to the current node and moves to it
+- `sibling(text, shape)` - Adds a sibling to the current node and moves to it
+- `parent(text, shape)` - Moves up to parent level and adds a node
+
+### Custom Terminology
+You can customize the API terminology to match your domain:
+
+```javascript
+const builder = createArielJS({
+    methods: {
+        addStep: 'node',         // Rename node() to addStep()
+        connectTo: 'edge'        // Rename edge() to connectTo()
+    },
+    properties: {
+        nodeType: 'shape',       // Rename shape property to nodeType
+        linkType: 'type'         // Rename type property to linkType
+    }
+});
+```
+
 ## Files
 
 - `src/ariel-js.js`: The ArielJS library

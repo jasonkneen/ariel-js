@@ -7,7 +7,7 @@ console.log('=== BIDIRECTIONAL CONVERSION TEST ===');
 console.log('This test demonstrates the ArielJS bidirectional conversion capabilities\n');
 
 // Create ArielJS with the factory pattern
-const ariel = createArielJS({useNewApi: true});
+const ariel = createArielJS();
 
 // Create a flowchart using ArielJS
 console.log('1. CREATE A FLOWCHART WITH ARIELJS');
